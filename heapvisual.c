@@ -4,8 +4,8 @@
 /* 
   log 每行有一个标识号前缀
     0 trace file name, heap start address
-    + occupy
-    - remove / realloc handling
+    + addr, size, heap_size
+    - addr, size, heap_size
     1 end
 */
 void log_trace_init(FILE* fp, char *file_name, void *heap_start) {
@@ -24,9 +24,9 @@ void log_trace_end(FILE* fp) {
 #define GET_SIZE(p)		(GET(p) & ~0x7)
 #define HDRP(bp)	((char* )(bp) - 4)
 
-void log_malloc(FILE* fp, void *p) {
+void log_malloc(FILE* fp, void *p, size_t heap_size) {
   size_t size = GET_SIZE(HDRP(p));
-  fprintf(fp, "+ %p %d\n", p, size);
+  fprintf(fp, "+ %p %d %d\n", p, size, heap_size);
 }
 
 static size_t old_size;
@@ -34,13 +34,13 @@ static size_t old_size;
 void log_realloc_1(FILE* fp, void *old_p) {
   old_size = GET_SIZE(HDRP(old_p));
 }
-void log_realloc_2(FILE* fp, void *old_p, void *new_p) {
+void log_realloc_2(FILE* fp, void *old_p, void *new_p, size_t heap_size) {
   size_t new_size = GET_SIZE(HDRP(new_p));
-  fprintf(fp, "- %p %d\n", old_p, old_size);
-  fprintf(fp, "+ %p %d\n", new_p, new_size);
+  fprintf(fp, "- %p %d %d\n", old_p, old_size, heap_size);
+  fprintf(fp, "+ %p %d %d\n", new_p, new_size, heap_size);
 }
 
-void log_free(FILE* fp, void *p) {
+void log_free(FILE* fp, void *p, size_t heap_size) {
   size_t old_size = GET_SIZE(HDRP(p));
-  fprintf(fp, "- %p %d\n", p, old_size);
+  fprintf(fp, "- %p %d %d\n", p, old_size, heap_size);
 }

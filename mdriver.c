@@ -658,7 +658,7 @@ static int eval_mm_valid(trace_t *trace, int tracenum, range_t **ranges)
             }
 
             #ifdef HEAP_VISUAL
-                log_malloc(fp_log, p);
+                log_malloc(fp_log, p, mem_heapsize());
             #endif
             
             /* 
@@ -696,7 +696,7 @@ static int eval_mm_valid(trace_t *trace, int tracenum, range_t **ranges)
             }
 
             #ifdef HEAP_VISUAL
-                log_realloc_2(fp_log, oldp, newp);
+                log_realloc_2(fp_log, oldp, newp, mem_heapsize());
             #endif
             
             /* Remove the old region from the range list */
@@ -734,7 +734,7 @@ static int eval_mm_valid(trace_t *trace, int tracenum, range_t **ranges)
             remove_range(ranges, p);
 
             #ifdef HEAP_VISUAL
-                log_free(fp_log, p);
+                log_free(fp_log, p, mem_heapsize());
             #endif
 
             mm_free(p);

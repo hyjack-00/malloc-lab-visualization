@@ -23,15 +23,21 @@ def visualize_heap_log(operations, max_heap_size, trace_file):
     else:
         op_rows = int(height / ops)
 
-    # Initialize the heap state array (0: free, 255: allocated)
-    heap_state = np.zeros(width, dtype=np.uint8)
+    # Space that hasn't been extended is marked gray
+    heap_state = np.empty(width, dtype=np.uint8)
+    heap_state.fill(64)
 
     image = np.zeros((height, width), dtype=np.uint8)
     
     # Draw by operations
-    for i, (op, addr, size) in enumerate(operations):
+    heap_used = 0
+    for i, (op, addr, size, heap_size) in enumerate(operations):
         idx_start = int(addr * addr_scale_factor)
         idx_end = int((addr + size) * addr_scale_factor)
+        idx_heap_size = int(heap_size * addr_scale_factor)
+
+        heap_state[heap_used : idx_heap_size] = 0  # Extend heap
+        heap_used = idx_heap_size
 
         if op == '+':
             heap_state[idx_start : idx_end] = 255  # Allocated: white
@@ -67,15 +73,16 @@ def read_heap_log(filename):
                 # alloc
                 addr = int(tokens[1], 16) - heap_start_addr
                 size = int(tokens[2])
-                max_heap_size = max(max_heap_size, addr + size)
-                operations.append(('+', addr, size))
+                heap_size = int(tokens[3])
+                operations.append(('+', addr, size, heap_size))
             elif tokens[0] == '-':   
                 # free
                 addr = int(tokens[1], 16) - heap_start_addr
                 size = int(tokens[2])
-                max_heap_size = max(max_heap_size, addr + size)
-                operations.append(('-', addr, size))
+                heap_size = int(tokens[3])
+                operations.append(('-', addr, size, heap_size))
             elif tokens[0] == '1':   # end
+                max_heap_size = operations[-1][3]
                 visualize_heap_log(operations, max_heap_size, trace_file)
                 operations = []
                 max_heap_size = 0

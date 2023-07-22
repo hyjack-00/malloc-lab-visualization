@@ -20,6 +20,10 @@ python lib:
 ### Visualization
 
 - After running `mdriver`, heap log files will be generated. Running the `heapvisual.py` script will generate a visualization of the heap state for each trace file, in the specified folder.
+  - Colors 
+    - white: Allocated
+    - Black: Free
+    - Gray:  Unextended
   - The visualization results will faithfully reflect the output of your memory allocator, and they will be influenced by the allocation algorithm and data structures used.
 - Note that the implementation of `log_malloc`, `log_free`, and `log_realloc` in `heapvisual.c` depends on your own implementation in `mm.c`. Depending on the implementation of `mm_[]` functions, you may need to modify them.
   - By default, it uses the block header structure provided in the CSAPP source code.
